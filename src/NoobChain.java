@@ -5,23 +5,33 @@ import java.util.ArrayList;
 public class NoobChain {
 
     public static ArrayList<Block> blockchain = new ArrayList<Block>();
+    public static int difficulty = 2;
 
     public static void main(String[] args) {
 
         blockchain.add(new Block("Hi im the first block", "0"));
-        blockchain.add(new Block("Hi im the second block", blockchain.get(blockchain.size()-1).hash));
-        blockchain.add(new Block("Hi im the third block", blockchain.get(blockchain.size()-1).hash));
+        System.out.println("Trying to Mine Block 1...");
+        blockchain.get(0).mineBlock(difficulty);
 
-        String blockchainJson = new GsonBuilder().setPrettyPrinting().create().toJson(blockchain);
-        System.out.println(blockchainJson);
+        blockchain.add(new Block("Hi im the second block", blockchain.get(blockchain.size()-1).hash));
+        System.out.println("Trying to Mine Block 2...");
+        blockchain.get(1).mineBlock(difficulty);
+
+        blockchain.add(new Block("Hi im the third block", blockchain.get(blockchain.size()-1).hash));
+        System.out.println("Trying to Mine Block 3...");
+        blockchain.get(2).mineBlock(difficulty);
 
         System.out.println("\nBlockchain is valid: " + isChainValid());
+
+        String blockchainJson = new GsonBuilder().setPrettyPrinting().create().toJson(blockchain);
+        System.out.println("\nThe block chain: " + blockchainJson);
 
     }
 
     public static Boolean isChainValid() {
         Block currentBlock;
         Block previousBlock;
+        String hashTarget = new String(new char[difficulty]).replace('\0', '0');
 
         //loop through blockchain to check hashes
         for (int i = 1; i < blockchain.size(); i++) {
@@ -36,6 +46,12 @@ public class NoobChain {
             //compare previous hash and registered previous hash
             if (!previousBlock.hash.equals(currentBlock.previousHash)) {
                 System.out.println("Previous Hashes not equal");
+                return false;
+            }
+
+            //check if hash is solved
+            if (!currentBlock.hash.substring(0, difficulty).equals(hashTarget)) {
+                System.out.println("This block has not been mined");
                 return false;
             }
         }
